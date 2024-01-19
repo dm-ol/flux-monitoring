@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fluent-bit-config
-  namespace: default
+  namespace: monitoring
 data:
   fluent-bit.conf: |
     [SERVICE]
@@ -21,28 +21,24 @@ data:
         Name              loki
         Match             *
         url               http://loki:3100/loki/api/v1/push
-
 ---
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fluent-bit-input
-  namespace: default
+  namespace: monitoring
 data:
   parsers.conf: |
     [PARSER]
         Name   docker
         Format regex
         Regex  ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>.[^ ]*) (?<log>.*)$
-
 ---
-
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: fluent-bit
-  namespace: default
+  namespace: monitoring
 spec:
   selector:
     matchLabels:
