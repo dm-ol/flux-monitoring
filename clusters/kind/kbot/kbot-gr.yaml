@@ -4,7 +4,7 @@ metadata:
   name: kbot
   namespace: kbot
 spec:
-  interval: 1m0s
+  interval: 1m10s
   ref:
     branch: main
   url: https://github.com/dm-ol/kbot.git
