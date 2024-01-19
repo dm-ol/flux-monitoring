@@ -1,0 +1,13 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: fluentbit
+  namespace: default
+spec:
+  releaseName: fluentbit
+  chart:
+    repository: <helm_repository>
+    name: <helm_chart_name>
+    version: <helm_chart_version>
+  values:
+    # ваші значення конфігурації тут
