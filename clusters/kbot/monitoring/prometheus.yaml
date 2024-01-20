@@ -16,32 +16,11 @@ metadata:
 spec:
   chart:
     spec:
-      chart: prometheus
+      chart: kube-prometheus-stack
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
         namespace: monitoring
   interval: 1m0s
-  releaseName: prometheus
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prometheus-config
-  namespace: monitoring
-data:
-  prometheus.yml: |
-    global:
-      scrape_interval: 15s 
-      evaluation_interval: 15s
-
-    scrape_configs:
-      - job_name: otel_collector
-        scrape_interval: 5s
-        static_configs:
-          - targets: ['collector:8889']
-
-      - job_name: 'prometheus'
-        static_configs:
-          - targets: [ 'localhost:9090' ]
+  releaseName: stable
