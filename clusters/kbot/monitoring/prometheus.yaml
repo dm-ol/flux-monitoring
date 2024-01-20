@@ -16,11 +16,11 @@ metadata:
 spec:
   chart:
     spec:
-      chart: prometheus-community/kube-prometheus-stack
+      chart: kube-prometheus-stack
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
         namespace: monitoring
   interval: 1m0s
-  releaseName: stable
+  releaseName: kube-prometheus-stack
