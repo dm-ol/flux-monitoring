@@ -7,7 +7,6 @@ metadata:
     k8s-app: prometheus
 data:
   prometheus.yml: |
-    
     global:
       evaluation_interval: 15s
       scrape_interval: 15s
@@ -19,9 +18,9 @@ data:
     - /etc/config/alerts
     scrape_configs:
     - job_name: otel_collector
-            scrape_interval: 5s
-            static_configs:
-              - targets: ['collector:8889']
+      scrape_interval: 5s
+      static_configs:
+        - targets: ['collector:8889']
     - job_name: prometheus
       static_configs:
       - targets:
