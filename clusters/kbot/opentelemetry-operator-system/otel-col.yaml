@@ -33,7 +33,7 @@ sspec:
 apiVersion: opentelemetry.io/v1alpha1
 kind: Instrumentation
 metadata:
-  name: otel-instrumentation
+  name: otel
 spec:
   exporter:
     endpoint: http://otel-collector:4317
