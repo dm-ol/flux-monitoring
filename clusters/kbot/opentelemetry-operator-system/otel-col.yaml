@@ -1,8 +1,7 @@
 apiVersion: opentelemetry.io/v1alpha1
 kind: OpenTelemetryCollector
 metadata:
-  name: open-telemetry
-  namespace: opentelemetry-operator-system
+  name: otel
 sspec:
   config: |
     receivers:
@@ -30,3 +29,17 @@ sspec:
         metrics:
           receivers: [otlp]
           exporters: [logging,prometheus]
+---
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: otel-instrumentation
+spec:
+  exporter:
+    endpoint: http://otel-collector:4317
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
