@@ -26,7 +26,7 @@ spec:
         kind: HelmRepository
         name: cert-manager
         namespace: cert-manager
-      version: 1.12.x
+      version: 1.13.x
   interval: 1m0s
   releaseName: cert-manager
   values:
