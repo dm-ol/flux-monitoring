@@ -16,7 +16,7 @@ metadata:
 spec:
   chart:
     spec:
-      chart: fluent/fluent-bit
+      chart: fluent-bit
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
