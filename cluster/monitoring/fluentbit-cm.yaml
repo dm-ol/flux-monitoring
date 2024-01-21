@@ -57,7 +57,7 @@ data:
         tls                  off
         tls.verify           off
         add_labels      app fluent-bit
-        add_labels      color blue
+        
     [OUTPUT]
         Name es
         Match kube.*
