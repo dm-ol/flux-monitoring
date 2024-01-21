@@ -54,8 +54,8 @@ data:
         metrics_uri     /v1/metrics
         logs_uri        /v1/logs
         Log_response_payload True
-        tls             On
-        tls_verify      On
+        tls                  off
+        tls.verify           off
         add_labels      app fluent-bit
         add_labels      color blue
     [OUTPUT]
