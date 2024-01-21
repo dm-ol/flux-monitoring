@@ -55,7 +55,7 @@ data:
         logs_uri        /v1/logs
         Log_response_payload True
         tls             off
-                        
+
     [OUTPUT]
         Name es
         Match kube.*
