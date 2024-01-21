@@ -88,5 +88,3 @@ metadata:
     helm.toolkit.fluxcd.io/namespace: monitoring
   name: fluentbit-fluent-bit
   namespace: monitoring
-  resourceVersion: "9475"
-  uid: 7122af2a-bb2f-46ae-9f5f-79f711be0c4f
