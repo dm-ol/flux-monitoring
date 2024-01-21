@@ -22,8 +22,8 @@ data:
 
     [INPUT]
         Name              tail
-        Tag               kube.*
         Path              /var/log/containers/*.log
+        Exclude_Path      /var/log/containers/*_kube-system_*.log,/var/log/containers/*_logging_*.log,/var/log/containers/*_ingress-nginx_*.log,/var/log/containers/*_kube-node-lease_*.log,/var/log/containers/*_kube-public_*.log,/var/log/containers/*_cert-manager_*.log,/var/log/containers/*_prometheus-operator_*.log
         multiline.parser  docker, cri
         Refresh_Interval  10
         Ignore_Older      6h
