@@ -78,7 +78,6 @@ metadata:
   annotations:
     meta.helm.sh/release-name: fluentbit
     meta.helm.sh/release-namespace: monitoring
-  creationTimestamp: "2024-01-20T21:29:15Z"
   labels:
     app.kubernetes.io/instance: fluentbit
     app.kubernetes.io/managed-by: Helm
