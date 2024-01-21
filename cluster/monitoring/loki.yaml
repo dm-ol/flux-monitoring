@@ -23,4 +23,14 @@ spec:
         name: grafana
         namespace: monitoring
   interval: 1m0s
- 
+  values:
+    loki:
+      commonConfig:
+        replication_factor: 1
+      storage:
+        type: filesystem
+    singleBinary:
+      replicas: 1
+    memberlist:
+      service:
+        publishNotReadyAddresses: true
