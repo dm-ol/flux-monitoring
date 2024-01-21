@@ -53,13 +53,9 @@ data:
         Port            3030
         metrics_uri     /v1/metrics
         logs_uri        /v1/logs
-        trace_uri       /v1/traces
         Log_response_payload True
         tls             off
-        tls_verify      off
-        add_labels      app fluent-bit
-        add_labels      color blue
-        
+                        
     [OUTPUT]
         Name es
         Match kube.*
