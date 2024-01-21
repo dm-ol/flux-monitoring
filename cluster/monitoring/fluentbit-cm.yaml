@@ -28,7 +28,7 @@ data:
         Refresh_Interval  10
         Ignore_Older      6h
         Docker_Mode       On
-        Tag_Regex         (?<kube_namespace>[^_]+)_(?<kube_pod>[^_]+)_(?<kube_container>[^_]+)_(?<kube_id>[^_]+)_(?<kube_name>.*)\.(?<kube_format>log|log\.gz|txt|json|out)$
+        Tag_Regex         var.log.containers.(?<pod_name>[a-z0-9](?:[-a-z0-9]*[a-z0-9])?(?:\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)_(?<namespace_name>[^_]+)_(?<container_name>.+)-(?<docker_id>[a-z0-9]{64})\.log$
         Tag               kube.${kube_namespace}.${kube_pod}.${kube_container}.${kube_id}.${kube_name}.${kube_format}
 
     [INPUT]
