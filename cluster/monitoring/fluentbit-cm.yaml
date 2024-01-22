@@ -23,7 +23,7 @@ data:
     [INPUT]
         Name              tail
         Path              /var/log/containers/*.log
-        Exclude_Path      /var/log/containers/*_kube-system_*.log,/var/log/containers/*_logging_*.log,/var/log/containers/*_ingress-nginx_*.log,/var/log/containers/*_kube-node-lease_*.log,/var/log/containers/*_kube-public_*.log,/var/log/containers/*_cert-manager_*.log,/var/log/containers/*_prometheus-operator_*.log
+        Exclude_Path      /var/log/containers/*_kube-system_*.log
         multiline.parser  docker, cri
         Refresh_Interval  10
         Ignore_Older      6h
@@ -39,7 +39,7 @@ data:
 
     [FILTER]
         Name kubernetes
-        Match kube.var.*
+        Match kube.*
         Merge_Log On
         Merge_Log_Key log_processed
         Keep_Log Off
