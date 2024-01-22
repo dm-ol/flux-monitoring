@@ -55,20 +55,6 @@ data:
         logs_uri        /v1/logs
         Log_response_payload True
         tls             off
-    [OUTPUT]
-        Name es
-        Match kube.*
-        Host elasticsearch-master
-        Logstash_Format On
-        Retry_Limit False
-
-    [OUTPUT]
-        Name es
-        Match host.*
-        Host elasticsearch-master
-        Logstash_Format On
-        Logstash_Prefix node
-        Retry_Limit False
 kind: ConfigMap
 metadata:
   annotations:
