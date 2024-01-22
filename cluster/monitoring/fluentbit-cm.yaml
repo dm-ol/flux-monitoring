@@ -39,7 +39,7 @@ data:
 
     [FILTER]
         Name kubernetes
-        Match kube.*
+        Match kube.var.*
         Merge_Log On
         Merge_Log_Key log_processed
         Keep_Log Off
