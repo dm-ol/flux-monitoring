@@ -1,0 +1,35 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: kbot
+  namespace: monitoring
+spec:
+  interval: 1m10s
+  ref:
+    branch: main
+  url: https://github.com/dm-ol/kbot.git
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kbot
+  namespace: monitoring
+spec:
+  chart:
+    spec:
+      chart: ./helm
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: GitRepository
+        name: kbot
+  interval: 1m0s
+---
+apiVersion: v1
+data:
+  token: NjA4MzU4Mjg0NTpBQUhNa203LTRscHhLS3B2bjN5UmVUM0dNX1ZkbDRPSGF1QQ==
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: kbot
+  namespace: monitoring
