@@ -24,12 +24,3 @@ spec:
         kind: GitRepository
         name: kbot
   interval: 1m0s
----
-apiVersion: v1
-data:
-  token: NjA4MzU4Mjg0NTpBQUhNa203LTRscHhLS3B2bjN5UmVUM0dNX1ZkbDRPSGF1QQ==
-kind: Secret
-metadata:
-  creationTimestamp: null
-  name: kbot
-  namespace: monitoring
