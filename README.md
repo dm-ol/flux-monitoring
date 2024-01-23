@@ -100,7 +100,7 @@ spec:
     admissionWebhooks.certManager.enabled: false
     manager.featureGates: operator.autoinstrumentation.go.enabled=true
 ```
-10. Створюємо маніфест для розгортання Open Telemetry Collector та Open Telemetry Collector Sidecar у репозиторії flux:
+10. Створюємо маніфест для розгортання Open Telemetry Collector у репозиторії flux:
 ```yaml
 apiVersion: opentelemetry.io/v1alpha1
 kind: OpenTelemetryCollector
@@ -115,7 +115,6 @@ spec:
       otlp:
         protocols:
           grpc:
-            endpoint: "0.0.0.0:4317"
           http:
             endpoint: "0.0.0.0:3030"
 
@@ -138,41 +137,6 @@ spec:
           receivers: [otlp]
           exporters: [logging,prometheus]
 ```
-```yaml
-apiVersion: opentelemetry.io/v1alpha1
-kind: OpenTelemetryCollector
-metadata:
-  name: opentelemetry-sidecar
-  namespace: monitoring
-spec:
-  mode: sidecar
-  config: |
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-            endpoint: "0.0.0.0:4317"
-          http:
-            endpoint: "0.0.0.0:3030"
-    exporters:
-      logging:
-      loki:
-        endpoint: http://loki:3100/loki/api/v1/push
-      prometheus:
-        endpoint: "0.0.0.0:8889"
-    service:
-      pipelines:
-        logs:
-          receivers: [otlp]
-          exporters: [loki]
-        traces:
-          receivers: [otlp]
-          exporters: [logging]
-        metrics:
-          receivers: [otlp]
-          exporters: [logging,prometheus]
-```
-
 11. Також розгортаємо Prometheus за допомогою згенерованого маніфесту та ConfigMaps для нього:
 ```yaml
 ---
@@ -225,7 +189,7 @@ data:
     - job_name: otel_collector
       scrape_interval: 5s
       static_configs:
-        - targets: ['opentelemetry-collector:8889']
+        - targets: ['collector:8889']
     - job_name: prometheus
       static_configs:
       - targets:
@@ -577,7 +541,6 @@ spec:
 
 ```yaml
 ---
----
 apiVersion: v1
 data:
   custom_parsers.conf: |
@@ -602,13 +565,13 @@ data:
     [INPUT]
         Name              tail
         Path              /var/log/containers/*.log
-        Exclude_Path      /var/log/containers/*_kube-system_*.log
+        Exclude_Path      /var/log/containers/*_kube-system_*.log,/var/log/containers/*_logging_*.log,/var/log/containers/*_ingress-nginx_*.log,/var/log/containers/*_kube-node-lease_*.log,/var/log/containers/*_kube-public_*.log,/var/log/containers/*_cert-manager_*.log,/var/log/containers/*_prometheus-operator_*.log
         multiline.parser  docker, cri
         Refresh_Interval  10
         Ignore_Older      6h
         Docker_Mode       On
-        Tag_Regex         (?<pod_name>[^_]+)_(?<namespace_name>[^_]+)_(?<container_name>[^_]+)-(?<docker_id>[a-z0-9]{64})\.log
-        Tag               <pod_name>_<namespace_name>_<container_name>-<docker_id>
+        Tag_Regex         var.log.containers.(?<pod_name>[a-z0-9](?:[-a-z0-9]*[a-z0-9])?(?:\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)_(?<namespace_name>[^_]+)_(?<container_name>.+)-(?<docker_id>[a-z0-9]{64})\.log$
+        Tag               kube.${kube_namespace}.${kube_pod}.${kube_container}.${kube_id}.${kube_name}.${kube_format}
 
     [INPUT]
         Name systemd
@@ -634,6 +597,20 @@ data:
         logs_uri        /v1/logs
         Log_response_payload True
         tls             off
+    [OUTPUT]
+        Name es
+        Match kube.*
+        Host elasticsearch-master
+        Logstash_Format On
+        Retry_Limit False
+
+    [OUTPUT]
+        Name es
+        Match host.*
+        Host elasticsearch-master
+        Logstash_Format On
+        Logstash_Prefix node
+        Retry_Limit False
 kind: ConfigMap
 metadata:
   annotations:
@@ -844,14 +821,70 @@ spec:
         name: kbot
   interval: 1m0s
 ```
-16. Додаємо токен для боту в будь-який зручний спосіб (бажано безпечно).
-17. Відкриваємо порт для доступу до Grafana:
+16. Додаємо токен для боту в будь-який зручний спосіб (бажано безпечно). Можна використати Sealed-secrets https://github.com/bitnami-labs/sealed-secrets :
+```yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: sealed-secrets
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  url: https://bitnami-labs.github.io/sealed-secrets
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: sealed-secrets
+  namespace: flux-system
+spec:
+  chart:
+    spec:
+      chart: sealed-secrets
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: sealed-secrets
+      version: '>=1.15.0-0'
+  install:
+    crds: Create
+  interval: 1m0s
+  releaseName: sealed-secrets-controller
+  targetNamespace: flux-system
+  upgrade:
+    crds: CreateReplace
+```
+
+17. Готуємо сікрет, попередньо зробив експорт токену:
+```bash
+kubeseal --fetch-cert \                                  
+--controller-name=sealed-secrets-controller \
+--controller-namespace=flux-system \
+> sealed-secrets-cert.pem
+```
+
+```bash
+k -n monitoring create secret generic kbot \             
+--dry-run=client \
+--from-literal=token=$TELE_TOKEN \
+-o yaml > secret.yaml
+```
+
+```bash
+kubeseal --format=yaml \                                 
+--cert=sealed-secrets-cert.pem \
+< secret.yaml > secret-sealed.yaml
+rm secret.yaml
+```
+
+18. Відкриваємо порт для доступу до Grafana:
 
 ```bash
 k port-forward service/grafana 3000:80 -n monitoring
 ```
-18. Якщо в процесі розгортання з'явиться помилка розгортання подів `CrashLoopBackOff` з  `Failed to allocate directory watch: Too many open files` в логах:
+19. Якщо в процесі розгортання з'явиться помилка розгортання подів `CrashLoopBackOff` з  `Failed to allocate directory watch: Too many open files` в логах:
 ```bash
 sudo sysctl -w fs.inotify.max_user_instances=256
 ```
-19. Якщо все добре, запускаємо Grafana в браузері `localhoct:3000` і налаштовуємо дашбоард.
+20. Якщо все добре, запускаємо Grafana в браузері `localhoct:3000` і налаштовуємо дашбоард.
